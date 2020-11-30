@@ -1,0 +1,4 @@
+export 'package:instagram_getx_clone/widgets/profileScreenComponents/profileTabBarView.dart';
+export 'package:instagram_getx_clone/widgets/profileScreenComponents/profileUserDataSection.dart';
+export 'package:instagram_getx_clone/widgets/profileScreenComponents/profilePersistentTabBarHeader.dart';
+export 'package:instagram_getx_clone/widgets/profileScreenComponents/profileHighlightStories.dart';
