@@ -16,8 +16,7 @@ class EditContentScreen extends StatefulWidget {
 }
 
 class _EditContentScreenState extends State<EditContentScreen> {
-  final FocusNode focusNode = FocusNode();
-
+  FocusNode _focusNode;
   double overlayOpacity = 0;
   bool shareOnFacebook = false;
   bool shareOnTwitter = false;
@@ -26,7 +25,8 @@ class _EditContentScreenState extends State<EditContentScreen> {
 
   @override
   void initState() {
-    focusNode.addListener(() {
+    _focusNode = FocusNode();
+    _focusNode.addListener(() {
       _setOverlayOpacity();
     });
     _setThumbnailWidget();
@@ -35,7 +35,7 @@ class _EditContentScreenState extends State<EditContentScreen> {
 
   @override
   void dispose() {
-    focusNode.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -103,7 +103,7 @@ class _EditContentScreenState extends State<EditContentScreen> {
             const SizedBox(width: 15),
             Expanded(
               child: TextField(
-                focusNode: focusNode,
+                focusNode: _focusNode,
                 keyboardType: TextInputType.multiline,
                 maxLines: null,
                 decoration: InputDecoration(
@@ -184,7 +184,7 @@ class _EditContentScreenState extends State<EditContentScreen> {
   GestureDetector _buildOpacityOverlay() {
     return GestureDetector(
       onTap: () {
-        focusNode.unfocus();
+        _focusNode.unfocus();
       },
       child: AnimatedOpacity(
         opacity: overlayOpacity,
@@ -226,7 +226,7 @@ class _EditContentScreenState extends State<EditContentScreen> {
 
   void _setOverlayOpacity() {
     setState(() {
-      focusNode.hasFocus ? overlayOpacity = 0.8 : overlayOpacity = 0;
+      _focusNode.hasFocus ? overlayOpacity = 0.8 : overlayOpacity = 0;
     });
   }
 }

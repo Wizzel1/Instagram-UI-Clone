@@ -19,23 +19,21 @@ class AddContentScreen extends StatefulWidget {
 }
 
 class _AddContentScreenState extends State<AddContentScreen> {
-  PageController pageController;
+  PageController _pageController;
   PageController camScreenPageController;
-  CropController cropController;
-  int parentPageIndex = 0;
-  int childPageIndex = 0;
-  List<MediaCollection> collections = [];
-  List<Media> allMedias;
-  bool multiSelectable = false;
-  bool zoomPreview = false;
-  bool snapPageView = false;
-  Widget previewWidget;
+  CropController _cropController;
+  int _parentPageIndex = 0;
+  int _childPageIndex = 0;
+  List<MediaCollection> _collections = [];
+  bool _multiSelectable = false;
+  bool _zoomPreview = false;
+  bool _snapPageView = false;
 
   @override
   void initState() {
-    pageController = PageController();
+    _pageController = PageController();
     camScreenPageController = PageController();
-    cropController =
+    _cropController =
         CropController(scale: 2, aspectRatio: 20 / 16); //1000 / 667.0);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       initAsync();
@@ -45,16 +43,16 @@ class _AddContentScreenState extends State<AddContentScreen> {
 
   @override
   void dispose() {
-    cropController.dispose();
+    _cropController.dispose();
     camScreenPageController.dispose();
-    pageController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
   Future<void> initAsync() async {
     final MediaPickerSelection selection = MediaPickerSelection.of(context);
     try {
-      collections = await MediaGallery.listMediaCollections(
+      _collections = await MediaGallery.listMediaCollections(
         mediaTypes: selection.mediaTypes,
       );
       setState(() {});
@@ -66,7 +64,7 @@ class _AddContentScreenState extends State<AddContentScreen> {
   @override
   Widget build(BuildContext context) {
     final MediaPickerSelection selection = MediaPickerSelection.of(context);
-    final MediaCollection allCollection = collections.firstWhere(
+    final MediaCollection allCollection = _collections.firstWhere(
       (collection) => collection.isAllCollection,
       orElse: () {
         return null;
@@ -109,7 +107,7 @@ class _AddContentScreenState extends State<AddContentScreen> {
         );
       } else {
         return Crop(
-          controller: cropController,
+          controller: _cropController,
           helper: IgnorePointer(
             ignoring: true,
             child: Container(
@@ -126,15 +124,15 @@ class _AddContentScreenState extends State<AddContentScreen> {
     return Scaffold(
       appBar: buildAppBar(context),
       body: PageView(
-        pageSnapping: snapPageView,
+        pageSnapping: _snapPageView,
         physics: NeverScrollableScrollPhysics(),
         onPageChanged: (index) {
           setState(() {
-            parentPageIndex = index;
-            childPageIndex = index;
+            _parentPageIndex = index;
+            _childPageIndex = index;
           });
         },
-        controller: pageController,
+        controller: _pageController,
         children: [
           Column(
             children: [
@@ -148,28 +146,28 @@ class _AddContentScreenState extends State<AddContentScreen> {
                 child: GestureDetector(
                   onHorizontalDragStart: (details) {
                     setState(() {
-                      snapPageView = false;
+                      _snapPageView = false;
                     });
                   },
                   onHorizontalDragUpdate: (details) {
                     if (details.delta.dx < -3) {
-                      pageController.animateToPage(1,
+                      _pageController.animateToPage(1,
                           duration: Duration(milliseconds: 300),
                           curve: Curves.ease);
                     } else {
-                      pageController
-                          .jumpTo(pageController.offset - details.delta.dx);
+                      _pageController
+                          .jumpTo(_pageController.offset - details.delta.dx);
                     }
                   },
                   onHorizontalDragEnd: (details) {
                     setState(() {
-                      snapPageView = true;
+                      _snapPageView = true;
                     });
                   },
                   child: allCollection == null
                       ? SizedBox()
                       : MediaGrid(
-                          allowMultiSelection: multiSelectable,
+                          allowMultiSelection: _multiSelectable,
                           collection: allCollection),
                 ),
               )
@@ -179,7 +177,7 @@ class _AddContentScreenState extends State<AddContentScreen> {
             camScreenPageController: camScreenPageController,
             onChangedCamScreenPage: (index) {
               setState(() {
-                childPageIndex = index + 1;
+                _childPageIndex = index + 1;
               });
             },
           )
@@ -258,8 +256,8 @@ class _AddContentScreenState extends State<AddContentScreen> {
             onPressed: () {
               setState(
                 () {
-                  multiSelectable = !multiSelectable;
-                  selection.toggleMultiSelection(multiSelectable);
+                  _multiSelectable = !_multiSelectable;
+                  selection.toggleMultiSelection(_multiSelectable);
                 },
               );
             },
@@ -273,7 +271,7 @@ class _AddContentScreenState extends State<AddContentScreen> {
               color: Colors.white,
               onPressed: () {
                 setState(() {
-                  zoomPreview = !zoomPreview;
+                  _zoomPreview = !_zoomPreview;
                 });
               }),
         )
@@ -286,7 +284,7 @@ class _AddContentScreenState extends State<AddContentScreen> {
       showSelectedLabels: true,
       showUnselectedLabels: true,
       selectedItemColor: Colors.black,
-      currentIndex: childPageIndex,
+      currentIndex: _childPageIndex,
       items: [
         const BottomNavigationBarItem(
           label: "Gallery",
@@ -302,13 +300,13 @@ class _AddContentScreenState extends State<AddContentScreen> {
         ),
       ],
       onTap: (index) {
-        if (index == childPageIndex) return;
-        if (parentPageIndex == 0) {
+        if (index == _childPageIndex) return;
+        if (_parentPageIndex == 0) {
           if (index == 1) {
-            pageController.animateToPage(1,
+            _pageController.animateToPage(1,
                 duration: Duration(milliseconds: 300), curve: Curves.ease);
           } else if (index == 2) {
-            pageController
+            _pageController
                 .animateToPage(1,
                     duration: Duration(milliseconds: 150), curve: Curves.ease)
                 .then((value) => camScreenPageController.animateToPage(1,
@@ -316,19 +314,19 @@ class _AddContentScreenState extends State<AddContentScreen> {
           }
         } else {
           if (index == 0) {
-            pageController.animateToPage(0,
+            _pageController.animateToPage(0,
                 duration: Duration(milliseconds: 300), curve: Curves.ease);
-          } else if (index == 1 && childPageIndex != 1) {
+          } else if (index == 1 && _childPageIndex != 1) {
             camScreenPageController.animateToPage(0,
                 duration: Duration(milliseconds: 300), curve: Curves.ease);
-          } else if (index == 2 && childPageIndex != 2) {
+          } else if (index == 2 && _childPageIndex != 2) {
             camScreenPageController.animateToPage(1,
                 duration: Duration(milliseconds: 300), curve: Curves.ease);
           }
         }
         setState(() {
-          childPageIndex = index;
-          index < 2 ? parentPageIndex = index : parentPageIndex = index - 1;
+          _childPageIndex = index;
+          index < 2 ? _parentPageIndex = index : _parentPageIndex = index - 1;
         });
       },
     );

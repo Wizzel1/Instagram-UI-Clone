@@ -19,8 +19,8 @@ class CameraScreen extends StatefulWidget {
 }
 
 class CameraScreenState extends State<CameraScreen> {
-  final PageController pageController = PageController();
-  CameraController camController;
+  PageController _pageController;
+  CameraController _camController;
   List cameras;
   int selectedCameraIndex;
   String imagePath;
@@ -28,14 +28,15 @@ class CameraScreenState extends State<CameraScreen> {
 
   @override
   void initState() {
+    _pageController = PageController();
     _initializeCameras();
     super.initState();
   }
 
   @override
   void dispose() {
-    pageController.dispose();
-    camController.dispose();
+    _pageController.dispose();
+    _camController.dispose();
     super.dispose();
   }
 
@@ -64,7 +65,7 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   void _onCapturePhotoPressed(BuildContext context) async {
-    if (!camController.value.isInitialized) {
+    if (!_camController.value.isInitialized) {
       return null;
     }
 
@@ -75,7 +76,7 @@ class CameraScreenState extends State<CameraScreen> {
     final String filePath = '$videoDirectory/$currentTime.png';
 
     try {
-      await camController.takePicture(filePath);
+      await _camController.takePicture(filePath);
       imagePath = filePath;
       File imageFile = File(imagePath);
       Navigator.push(
@@ -90,12 +91,12 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   Future<String> _startVideoRecording() async {
-    if (!camController.value.isInitialized) {
+    if (!_camController.value.isInitialized) {
       return null;
     }
 
     // Do nothing if a recording is on progress
-    if (camController.value.isRecordingVideo) {
+    if (_camController.value.isRecordingVideo) {
       return null;
     }
 
@@ -106,7 +107,7 @@ class CameraScreenState extends State<CameraScreen> {
     final String filePath = '$videoDirectory/$currentTime.mp4';
 
     try {
-      await camController.startVideoRecording(filePath);
+      await _camController.startVideoRecording(filePath);
       videoPath = filePath;
     } on CameraException catch (e) {
       _showCameraException(e);
@@ -130,9 +131,9 @@ class CameraScreenState extends State<CameraScreen> {
             IconButton(
               icon: const Icon(Icons.videocam),
               color: Colors.blue,
-              onPressed: camController != null &&
-                      camController.value.isInitialized &&
-                      !camController.value.isRecordingVideo
+              onPressed: _camController != null &&
+                      _camController.value.isInitialized &&
+                      !_camController.value.isRecordingVideo
                   ? _onRecordButtonPressed
                   : null,
             ),
@@ -140,9 +141,9 @@ class CameraScreenState extends State<CameraScreen> {
               icon: const Icon(Icons.stop),
               color: Colors.red,
               onPressed: () {
-                camController != null &&
-                        camController.value.isInitialized &&
-                        camController.value.isRecordingVideo
+                _camController != null &&
+                        _camController.value.isInitialized &&
+                        _camController.value.isRecordingVideo
                     ? _onStopButtonPressed(context)
                     : null;
               },
@@ -158,13 +159,13 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   void _onStopButtonPressed(BuildContext context) {
-    if (!camController.value.isRecordingVideo) {
+    if (!_camController.value.isRecordingVideo) {
       return null;
     }
     try {
       File test = File(videoPath);
 
-      camController.stopVideoRecording().then(
+      _camController.stopVideoRecording().then(
             (_) => Navigator.push(
               context,
               MaterialPageRoute(
@@ -247,21 +248,21 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> _onCameraSwitched(CameraDescription cameraDescription) async {
-    if (camController != null) {
-      await camController.dispose();
+    if (_camController != null) {
+      await _camController.dispose();
     }
 
-    camController = CameraController(cameraDescription, ResolutionPreset.high);
+    _camController = CameraController(cameraDescription, ResolutionPreset.high);
 
     // If the camController is updated then update the UI.
-    camController.addListener(() {
+    _camController.addListener(() {
       if (mounted) {
         setState(() {});
       }
     });
 
     try {
-      await camController.initialize();
+      await _camController.initialize();
     } on CameraException catch (e) {
       _showCameraException(e);
     }
@@ -272,7 +273,7 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   Widget _cameraPreviewWidget() {
-    if (camController == null || !camController.value.isInitialized) {
+    if (_camController == null || !_camController.value.isInitialized) {
       return const Text(
         'Loading',
         style: TextStyle(
@@ -283,8 +284,8 @@ class CameraScreenState extends State<CameraScreen> {
       );
     }
     return AspectRatio(
-      aspectRatio: camController.value.aspectRatio,
-      child: CameraPreview(camController),
+      aspectRatio: _camController.value.aspectRatio,
+      child: CameraPreview(_camController),
     );
   }
 

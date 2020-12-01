@@ -11,19 +11,21 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen>
     with SingleTickerProviderStateMixin {
-  final FocusNode _focusNode = FocusNode();
-  final TextEditingController _textController = TextEditingController();
+  FocusNode _focusNode;
+  TextEditingController _textController;
   AnimationController _animationController;
   Animation _animation;
   List<User> filteredUsers = users;
 
   @override
   void initState() {
-    super.initState();
+    _focusNode = FocusNode();
+    _textController = TextEditingController();
     _animationController =
         AnimationController(duration: Duration(milliseconds: 200), vsync: this);
     _animation = IntTween(begin: 10, end: 0).animate(_animationController);
     _focusNode.addListener(_onFocusChange);
+    super.initState();
   }
 
   @override
@@ -31,7 +33,6 @@ class _SearchScreenState extends State<SearchScreen>
     _animationController.dispose();
     _textController.dispose();
     _focusNode.dispose();
-
     super.dispose();
   }
 

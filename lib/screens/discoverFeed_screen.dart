@@ -16,12 +16,13 @@ class DiscoverFeed extends StatefulWidget {
 }
 
 class _DiscoverFeedState extends State<DiscoverFeed> {
-  final ScrollController _sc = ScrollController();
   final GlobalKey containerSizeKey = GlobalKey();
+  ScrollController _scrollController;
   User user;
 
   @override
   void initState() {
+    _scrollController = ScrollController();
     user =
         users.singleWhere((element) => element.id == widget.focusPost.authorID);
 
@@ -33,7 +34,7 @@ class _DiscoverFeedState extends State<DiscoverFeed> {
 
   @override
   void dispose() {
-    _sc.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -74,7 +75,7 @@ class _DiscoverFeedState extends State<DiscoverFeed> {
         ),
       ),
       body: SingleChildScrollView(
-        controller: _sc,
+        controller: _scrollController,
         child: ListView.builder(
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
@@ -93,7 +94,7 @@ class _DiscoverFeedState extends State<DiscoverFeed> {
     double containerSize = _getContainerSize().height;
     for (int i = 0; i < user.userPosts.length; i++) {
       if (user.userPosts.elementAt(i) == widget.focusPost) {
-        _sc.animateTo(i * containerSize,
+        _scrollController.animateTo(i * containerSize,
             duration: const Duration(milliseconds: 1), curve: Curves.ease);
         break;
       }

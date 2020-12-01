@@ -14,6 +14,10 @@ class CommunityProfileScreen extends StatefulWidget {
 
 class _CommunityProfileScreenState extends State<CommunityProfileScreen>
     with SingleTickerProviderStateMixin {
+  TabController _tabController;
+  ScrollPhysics _scrollPhysics;
+  ScrollController _scrollController;
+
   final List<Widget> myTabs = [
     const Tab(
       icon: Icon(
@@ -29,22 +33,18 @@ class _CommunityProfileScreenState extends State<CommunityProfileScreen>
     ),
   ];
 
-  TabController _tabController;
-  ScrollPhysics _scrollPhysics;
-  ScrollController _scrollController = ScrollController();
+  @override
+  void initState() {
+    _tabController = TabController(length: 2, vsync: this);
+    _scrollController = ScrollController();
+    super.initState();
+  }
 
   @override
   void dispose() {
     _tabController.dispose();
     _scrollController.dispose();
-
     super.dispose();
-  }
-
-  @override
-  void initState() {
-    _tabController = TabController(length: 2, vsync: this);
-    super.initState();
   }
 
   @override
