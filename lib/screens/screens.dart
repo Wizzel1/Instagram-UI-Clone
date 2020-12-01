@@ -1,7 +1,7 @@
 export 'package:instagram_getx_clone/screens/feed_screen.dart';
 export 'package:instagram_getx_clone/screens/navigation_screen.dart';
 export 'package:instagram_getx_clone/screens/search_screen.dart';
-export 'package:instagram_getx_clone/screens/activity_screen.dart';
+export 'package:instagram_getx_clone/screens/notification_screen.dart';
 export 'package:instagram_getx_clone/screens/userProfile_screen.dart';
 export 'package:instagram_getx_clone/screens/communityProfile_screen.dart';
 export 'package:instagram_getx_clone/screens/discoverFeed_screen.dart';

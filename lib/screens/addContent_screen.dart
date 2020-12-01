@@ -61,6 +61,15 @@ class _AddContentScreenState extends State<AddContentScreen> {
     }
   }
 
+  void animatePageView(DragUpdateDetails details) {
+    if (details.delta.dx < -3) {
+      _pageController.animateToPage(1,
+          duration: Duration(milliseconds: 300), curve: Curves.ease);
+    } else {
+      _pageController.jumpTo(_pageController.offset - details.delta.dx);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final MediaPickerSelection selection = MediaPickerSelection.of(context);
@@ -70,56 +79,6 @@ class _AddContentScreenState extends State<AddContentScreen> {
         return null;
       },
     );
-
-    Widget _getPreviewWidget() {
-      if (selection.selectedMedias.last.mediaType == MediaType.image) {
-        return FutureBuilder(
-          future: selection.selectedMedias.last.getFile(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              return Image.file(snapshot.data, fit: BoxFit.contain);
-            } else {
-              return CircularProgressIndicator();
-            }
-          },
-        );
-      } else if (selection.selectedMedias.last.mediaType == MediaType.video) {
-        return FutureBuilder(
-          future: selection.selectedMedias.last.getFile(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              return ChewieVideoPlayer(
-                snapshot.data,
-                UniqueKey(),
-              );
-            } else {
-              return Center(child: CircularProgressIndicator());
-            }
-          },
-        );
-      }
-    }
-
-    Widget _buildCropPreview() {
-      if (selection.selectedMedias.length == 0) {
-        return Center(
-          child: CircularProgressIndicator(),
-        );
-      } else {
-        return Crop(
-          controller: _cropController,
-          helper: IgnorePointer(
-            ignoring: true,
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.white, width: 2),
-              ),
-            ),
-          ),
-          child: _getPreviewWidget(),
-        );
-      }
-    }
 
     return Scaffold(
       appBar: buildAppBar(context),
@@ -138,7 +97,23 @@ class _AddContentScreenState extends State<AddContentScreen> {
             children: [
               Expanded(
                 flex: 3,
-                child: buildPreviewWidget(selection, _buildCropPreview),
+                child: CropPreview(
+                  selection: selection,
+                  onMultiSelectPressed: () {
+                    setState(
+                      () {
+                        _multiSelectable = !_multiSelectable;
+                        selection.toggleMultiSelection(_multiSelectable);
+                      },
+                    );
+                  },
+                  onZoomPreviewPressed: () {
+                    setState(() {
+                      _zoomPreview = !_zoomPreview;
+                    });
+                  },
+                  cropController: _cropController,
+                ),
               ),
               const SizedBox(height: 2),
               Expanded(
@@ -150,14 +125,7 @@ class _AddContentScreenState extends State<AddContentScreen> {
                     });
                   },
                   onHorizontalDragUpdate: (details) {
-                    if (details.delta.dx < -3) {
-                      _pageController.animateToPage(1,
-                          duration: Duration(milliseconds: 300),
-                          curve: Curves.ease);
-                    } else {
-                      _pageController
-                          .jumpTo(_pageController.offset - details.delta.dx);
-                    }
+                    animatePageView(details);
                   },
                   onHorizontalDragEnd: (details) {
                     setState(() {
@@ -192,10 +160,9 @@ class _AddContentScreenState extends State<AddContentScreen> {
     if (selection == null) {
       return;
     }
-    List<Future<File>> futureFileList = selection.selectedMedias.map((e) async {
-      Future<File> future = e.getFile();
-      return future;
-    }).toList();
+
+    List<Future<File>> futureFileList =
+        getFileFuturesListOfSelection(selection);
 
     List<File> files = await Future.wait(futureFileList);
 
@@ -205,6 +172,15 @@ class _AddContentScreenState extends State<AddContentScreen> {
         builder: (context) => EditContentScreen(files: files),
       ),
     );
+  }
+
+  List<Future<File>> getFileFuturesListOfSelection(
+      MediaPickerSelection selection) {
+    List<Future<File>> fileFutureList = selection.selectedMedias.map((e) async {
+      Future<File> future = e.getFile();
+      return future;
+    }).toList();
+    return fileFutureList;
   }
 
   AppBar buildAppBar(BuildContext context) {
@@ -234,48 +210,6 @@ class _AddContentScreenState extends State<AddContentScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget buildPreviewWidget(
-      MediaPickerSelection selection, Widget _buildCropPreview()) {
-    return Stack(
-      children: [
-        AnimatedBuilder(
-          animation: selection,
-          builder: (BuildContext context, Widget child) {
-            return _buildCropPreview();
-          },
-        ),
-        Positioned(
-          right: 10,
-          bottom: 10,
-          child: IconButton(
-            icon: const Icon(Icons.multiple_stop),
-            color: Colors.white,
-            onPressed: () {
-              setState(
-                () {
-                  _multiSelectable = !_multiSelectable;
-                  selection.toggleMultiSelection(_multiSelectable);
-                },
-              );
-            },
-          ),
-        ),
-        Positioned(
-          left: 10,
-          bottom: 10,
-          child: IconButton(
-              icon: const Icon(Icons.expand),
-              color: Colors.white,
-              onPressed: () {
-                setState(() {
-                  _zoomPreview = !_zoomPreview;
-                });
-              }),
-        )
-      ],
     );
   }
 
@@ -330,5 +264,96 @@ class _AddContentScreenState extends State<AddContentScreen> {
         });
       },
     );
+  }
+}
+
+class CropPreview extends StatelessWidget {
+  final MediaPickerSelection selection;
+  final CropController cropController;
+  final Function onMultiSelectPressed;
+  final Function onZoomPreviewPressed;
+
+  const CropPreview(
+      {Key key,
+      @required this.selection,
+      @required this.onMultiSelectPressed,
+      @required this.onZoomPreviewPressed,
+      @required this.cropController})
+      : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        AnimatedBuilder(
+          animation: selection,
+          builder: (BuildContext context, Widget child) {
+            if (selection.selectedMedias.length == 0) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              return Crop(
+                controller: cropController,
+                helper: IgnorePointer(
+                  ignoring: true,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                  ),
+                ),
+                child: _getPreviewWidget(),
+              );
+            }
+          },
+        ),
+        Positioned(
+          right: 10,
+          bottom: 10,
+          child: IconButton(
+            icon: const Icon(Icons.multiple_stop),
+            color: Colors.white,
+            onPressed: onMultiSelectPressed,
+          ),
+        ),
+        Positioned(
+          left: 10,
+          bottom: 10,
+          child: IconButton(
+              icon: const Icon(Icons.expand),
+              color: Colors.white,
+              onPressed: onZoomPreviewPressed),
+        )
+      ],
+    );
+  }
+
+  Widget _getPreviewWidget() {
+    if (selection.selectedMedias.last.mediaType == MediaType.image) {
+      return FutureBuilder(
+        future: selection.selectedMedias.last.getFile(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Image.file(snapshot.data, fit: BoxFit.contain);
+          } else {
+            return CircularProgressIndicator();
+          }
+        },
+      );
+    } else if (selection.selectedMedias.last.mediaType == MediaType.video) {
+      return FutureBuilder(
+        future: selection.selectedMedias.last.getFile(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return ChewieVideoPlayer(
+              snapshot.data,
+              UniqueKey(),
+            );
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        },
+      );
+    }
   }
 }
