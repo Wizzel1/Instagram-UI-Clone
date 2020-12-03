@@ -24,60 +24,82 @@ class NotificationScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                Container(
-                  height: 50,
-                  child: const TabBar(
-                    indicatorColor: Colors.black,
-                    indicatorWeight: 1.5,
-                    tabs: [
-                      Tab(
-                        icon: const Icon(
-                          Icons.chat_bubble_outline,
-                          color: Colors.black,
-                        ),
-                      ),
-                      Tab(
-                        icon: const Icon(
-                          Icons.favorite_border,
-                          color: Colors.black,
-                        ),
-                      ),
-                      Tab(
-                        icon: const Icon(
-                          Icons.person_outline,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
+                NotificationScreenTabBar()
               ],
             ),
           ),
-          body: TabBarView(
-            children: [
-              ListView.builder(
-                itemCount: 20,
-                itemBuilder: (context, index) {
-                  return NotificationListTile(title: "Like");
-                },
-              ),
-              ListView.builder(
-                itemCount: 20,
-                itemBuilder: (context, index) {
-                  return NotificationListTile(title: "Share");
-                },
-              ),
-              ListView.builder(
-                itemCount: 20,
-                itemBuilder: (context, index) {
-                  return NotificationListTile(title: "Mention");
-                },
-              )
-            ],
-          ),
+          body: NotificationScreenTabBarView(),
         ),
       ),
+    );
+  }
+}
+
+class NotificationScreenTabBar extends StatelessWidget {
+  const NotificationScreenTabBar({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 50,
+      child: const TabBar(
+        indicatorColor: Colors.black,
+        indicatorWeight: 1.5,
+        tabs: [
+          Tab(
+            icon: const Icon(
+              Icons.chat_bubble_outline,
+              color: Colors.black,
+            ),
+          ),
+          Tab(
+            icon: const Icon(
+              Icons.favorite_border,
+              color: Colors.black,
+            ),
+          ),
+          Tab(
+            icon: const Icon(
+              Icons.person_outline,
+              color: Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class NotificationScreenTabBarView extends StatelessWidget {
+  const NotificationScreenTabBarView({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return TabBarView(
+      children: [
+        ListView.builder(
+          itemCount: 20,
+          itemBuilder: (context, index) {
+            return NotificationListTile(title: "Like");
+          },
+        ),
+        ListView.builder(
+          itemCount: 20,
+          itemBuilder: (context, index) {
+            return NotificationListTile(title: "Share");
+          },
+        ),
+        ListView.builder(
+          itemCount: 20,
+          itemBuilder: (context, index) {
+            return NotificationListTile(title: "Mention");
+          },
+        )
+      ],
     );
   }
 }
