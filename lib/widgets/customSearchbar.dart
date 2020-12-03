@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class CustomSearchbar extends PreferredSize {
+class CustomAppbar extends PreferredSize {
   final Widget child;
   final double height;
 
-  CustomSearchbar({@required this.child, this.height = kToolbarHeight});
+  CustomAppbar({@required this.child, this.height = kToolbarHeight});
 
   @override
   Size get preferredSize => Size.fromHeight(height);

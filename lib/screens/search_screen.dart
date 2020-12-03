@@ -55,7 +55,7 @@ class _SearchScreenState extends State<SearchScreen>
       child: DefaultTabController(
         length: 4,
         child: Scaffold(
-          appBar: CustomSearchbar(
+          appBar: CustomAppbar(
             height: 110,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

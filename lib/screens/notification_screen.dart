@@ -8,7 +8,7 @@ class NotificationScreen extends StatelessWidget {
       child: DefaultTabController(
         length: 3,
         child: Scaffold(
-          appBar: CustomSearchbar(
+          appBar: CustomAppbar(
             height: 110,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
