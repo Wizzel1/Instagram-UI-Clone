@@ -127,69 +127,7 @@ class _SearchScreenState extends State<SearchScreen>
                     ],
                   ),
                 ),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  transitionBuilder: (child, animation) {
-                    return FadeTransition(opacity: animation, child: child);
-                  },
-                  child: _focusNode.hasFocus
-                      ? Container(
-                          key: UniqueKey(),
-                          height: 50,
-                          child: const TabBar(
-                            indicatorColor: Colors.black,
-                            indicatorWeight: 1.5,
-                            tabs: [
-                              const Tab(
-                                icon: Icon(
-                                  Icons.menu,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              const Tab(
-                                icon: Icon(
-                                  Icons.person_outline,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              const Tab(
-                                icon: Icon(
-                                  Icons.tag,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              const Tab(
-                                icon: Icon(
-                                  Icons.location_on_outlined,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : Container(
-                          key: UniqueKey(),
-                          height: 50,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: 10,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: OutlineButton(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  borderSide:
-                                      BorderSide(color: Colors.grey[200]),
-                                  child: Text("Test $index"),
-                                  onPressed: () {},
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                )
+                AnimatedMenuSwitcher(focusNode: _focusNode)
               ],
             ),
           ),
@@ -204,66 +142,40 @@ class _SearchScreenState extends State<SearchScreen>
             child: _focusNode.hasFocus
                 ? TabBarView(
                     children: [
-                      buildResultList(),
-                      buildResultList(),
-                      buildResultList(),
-                      buildResultList(),
+                      ResultList(users: filteredUsers),
+                      ResultList(users: filteredUsers),
+                      ResultList(users: filteredUsers),
+                      ResultList(users: filteredUsers),
                     ],
                   )
-                : GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      mainAxisSpacing: 3,
-                      crossAxisSpacing: 3,
-                      childAspectRatio: 1.0,
-                    ),
-                    itemBuilder: (context, index) {
-                      return Container(
-                        decoration: BoxDecoration(
-                          image: const DecorationImage(
-                            fit: BoxFit.cover,
-                            image: NetworkImage("https://picsum.photos/350"),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                : SuggestedPostsGrid(),
           ),
         ),
       ),
     );
   }
+}
 
-  ListView buildResultList() {
-    return ListView.builder(
-      itemCount: filteredUsers.length,
+class SuggestedPostsGrid extends StatelessWidget {
+  const SuggestedPostsGrid({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        mainAxisSpacing: 3,
+        crossAxisSpacing: 3,
+        childAspectRatio: 1.0,
+      ),
       itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8.0),
-          child: ListTile(
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CommunityProfileScreen(
-                    user: filteredUsers[index] ?? users[index]),
-              ),
-            ),
-            leading: CircleAvatar(
-              backgroundImage: NetworkImage(filteredUsers[index].userImageUrl ??
-                  users[index].userImageUrl),
-            ),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  filteredUsers[index].userName,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  filteredUsers[index].handle,
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ],
+        return Container(
+          decoration: BoxDecoration(
+            image: const DecorationImage(
+              fit: BoxFit.cover,
+              image: NetworkImage("https://picsum.photos/350"),
             ),
           ),
         );
@@ -285,5 +197,124 @@ List<User> _search(String queryText) {
     return searchResult;
   } else {
     return users;
+  }
+}
+
+class AnimatedMenuSwitcher extends StatelessWidget {
+  const AnimatedMenuSwitcher({
+    Key key,
+    @required FocusNode focusNode,
+  })  : _focusNode = focusNode,
+        super(key: key);
+
+  final FocusNode _focusNode;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      transitionBuilder: (child, animation) {
+        return FadeTransition(opacity: animation, child: child);
+      },
+      child: _focusNode.hasFocus
+          ? Container(
+              key: UniqueKey(),
+              height: 50,
+              child: const TabBar(
+                indicatorColor: Colors.black,
+                indicatorWeight: 1.5,
+                tabs: [
+                  const Tab(
+                    icon: Icon(
+                      Icons.menu,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const Tab(
+                    icon: Icon(
+                      Icons.person_outline,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const Tab(
+                    icon: Icon(
+                      Icons.tag,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const Tab(
+                    icon: Icon(
+                      Icons.location_on_outlined,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : Container(
+              key: UniqueKey(),
+              height: 50,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: 10,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: OutlineButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      borderSide: BorderSide(color: Colors.grey[200]),
+                      child: Text("Test $index"),
+                      onPressed: () {},
+                    ),
+                  );
+                },
+              ),
+            ),
+    );
+  }
+}
+
+class ResultList extends StatelessWidget {
+  final List<User> users;
+
+  const ResultList({Key key, @required this.users}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: users.length,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8.0),
+          child: ListTile(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    CommunityProfileScreen(user: users[index] ?? users[index]),
+              ),
+            ),
+            leading: CircleAvatar(
+              backgroundImage: NetworkImage(
+                  users[index].userImageUrl ?? users[index].userImageUrl),
+            ),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  users[index].userName,
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  users[index].handle,
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

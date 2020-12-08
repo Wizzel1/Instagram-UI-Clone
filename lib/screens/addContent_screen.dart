@@ -196,84 +196,6 @@ class _AddContentScreenState extends State<AddContentScreen> {
   }
 }
 
-typedef OnIndexChanged = void Function(int a, int b);
-
-class AddContentBottomNavBar extends StatefulWidget {
-  final PageController pageController;
-  final PageController camPageController;
-  final OnIndexChanged onIndexChanged;
-
-  AddContentBottomNavBar(
-      {Key key,
-      @required this.pageController,
-      @required this.camPageController,
-      @required this.onIndexChanged})
-      : super(key: key);
-
-  @override
-  _AddContentBottomNavBarState createState() => _AddContentBottomNavBarState();
-}
-
-class _AddContentBottomNavBarState extends State<AddContentBottomNavBar> {
-  int _childPageIndex = 0;
-  int _parentPageIndex = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      showSelectedLabels: true,
-      showUnselectedLabels: true,
-      selectedItemColor: Colors.black,
-      currentIndex: _childPageIndex,
-      items: [
-        const BottomNavigationBarItem(
-          label: "Gallery",
-          icon: SizedBox.shrink(),
-        ),
-        const BottomNavigationBarItem(
-          label: "Photo",
-          icon: SizedBox.shrink(),
-        ),
-        const BottomNavigationBarItem(
-          label: "Video",
-          icon: SizedBox.shrink(),
-        ),
-      ],
-      onTap: (index) {
-        if (index == _childPageIndex) return;
-        if (_parentPageIndex == 0) {
-          if (index == 1) {
-            widget.pageController.animateToPage(1,
-                duration: Duration(milliseconds: 300), curve: Curves.ease);
-          } else if (index == 2) {
-            widget.pageController
-                .animateToPage(1,
-                    duration: Duration(milliseconds: 150), curve: Curves.ease)
-                .then((value) => widget.camPageController.animateToPage(1,
-                    duration: Duration(milliseconds: 150), curve: Curves.ease));
-          }
-        } else {
-          if (index == 0) {
-            widget.pageController.animateToPage(0,
-                duration: Duration(milliseconds: 300), curve: Curves.ease);
-          } else if (index == 1 && _childPageIndex != 1) {
-            widget.camPageController.animateToPage(0,
-                duration: Duration(milliseconds: 300), curve: Curves.ease);
-          } else if (index == 2 && _childPageIndex != 2) {
-            widget.camPageController.animateToPage(1,
-                duration: Duration(milliseconds: 300), curve: Curves.ease);
-          }
-        }
-        setState(() {
-          _childPageIndex = index;
-          index < 2 ? _parentPageIndex = index : _parentPageIndex = index - 1;
-        });
-        widget.onIndexChanged(_childPageIndex, _parentPageIndex);
-      },
-    );
-  }
-}
-
 class AddContentScreenAppBar extends CustomAppbar {
   final Function onPressedNext;
 
@@ -399,5 +321,83 @@ class CropPreview extends StatelessWidget {
         },
       );
     }
+  }
+}
+
+typedef OnIndexChanged = void Function(int a, int b);
+
+class AddContentBottomNavBar extends StatefulWidget {
+  final PageController pageController;
+  final PageController camPageController;
+  final OnIndexChanged onIndexChanged;
+
+  AddContentBottomNavBar(
+      {Key key,
+      @required this.pageController,
+      @required this.camPageController,
+      @required this.onIndexChanged})
+      : super(key: key);
+
+  @override
+  _AddContentBottomNavBarState createState() => _AddContentBottomNavBarState();
+}
+
+class _AddContentBottomNavBarState extends State<AddContentBottomNavBar> {
+  int _childPageIndex = 0;
+  int _parentPageIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomNavigationBar(
+      showSelectedLabels: true,
+      showUnselectedLabels: true,
+      selectedItemColor: Colors.black,
+      currentIndex: _childPageIndex,
+      items: [
+        const BottomNavigationBarItem(
+          label: "Gallery",
+          icon: SizedBox.shrink(),
+        ),
+        const BottomNavigationBarItem(
+          label: "Photo",
+          icon: SizedBox.shrink(),
+        ),
+        const BottomNavigationBarItem(
+          label: "Video",
+          icon: SizedBox.shrink(),
+        ),
+      ],
+      onTap: (index) {
+        if (index == _childPageIndex) return;
+        if (_parentPageIndex == 0) {
+          if (index == 1) {
+            widget.pageController.animateToPage(1,
+                duration: Duration(milliseconds: 300), curve: Curves.ease);
+          } else if (index == 2) {
+            widget.pageController
+                .animateToPage(1,
+                    duration: Duration(milliseconds: 150), curve: Curves.ease)
+                .then((value) => widget.camPageController.animateToPage(1,
+                    duration: Duration(milliseconds: 150), curve: Curves.ease));
+          }
+        } else {
+          if (index == 0) {
+            widget.pageController.animateToPage(0,
+                duration: Duration(milliseconds: 300), curve: Curves.ease);
+          } else if (index == 1 && _childPageIndex != 1) {
+            widget.camPageController.animateToPage(0,
+                duration: Duration(milliseconds: 300), curve: Curves.ease);
+          } else if (index == 2 && _childPageIndex != 2) {
+            widget.camPageController.animateToPage(1,
+                duration: Duration(milliseconds: 300), curve: Curves.ease);
+          }
+        }
+        setState(() {
+          _childPageIndex = index;
+          index < 2 ? _parentPageIndex = index : _parentPageIndex = index - 1;
+        });
+        widget.onIndexChanged(_childPageIndex, _parentPageIndex);
+      },
+    );
   }
 }
