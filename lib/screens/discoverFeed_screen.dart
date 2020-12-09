@@ -41,39 +41,7 @@ class _DiscoverFeedState extends State<DiscoverFeed> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        brightness: Brightness.light,
-        centerTitle: true,
-        title: Column(
-          children: [
-            Text(
-              user.userName,
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 18.0,
-              ),
-            ),
-            Text(
-              "Beiträge",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 16.0,
-              ),
-            )
-          ],
-        ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios,
-            color: Colors.black,
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
+      appBar: DiscoverScreenAppBar(user: user),
       body: SingleChildScrollView(
         controller: _scrollController,
         child: ListView.builder(
@@ -106,5 +74,51 @@ class _DiscoverFeedState extends State<DiscoverFeed> {
         containerSizeKey.currentContext.findRenderObject();
     final size = postContainerRender.size;
     return size;
+  }
+}
+
+class DiscoverScreenAppBar extends CustomAppbar {
+  DiscoverScreenAppBar({
+    Key key,
+    @required this.user,
+  });
+
+  final User user;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      elevation: 0,
+      backgroundColor: Colors.white,
+      brightness: Brightness.light,
+      centerTitle: true,
+      title: Column(
+        children: [
+          Text(
+            user.userName,
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 18.0,
+            ),
+          ),
+          Text(
+            "Beiträge",
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 16.0,
+            ),
+          )
+        ],
+      ),
+      leading: IconButton(
+        icon: Icon(
+          Icons.arrow_back_ios,
+          color: Colors.black,
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+    );
   }
 }
