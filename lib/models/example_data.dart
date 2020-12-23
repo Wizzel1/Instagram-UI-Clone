@@ -12,7 +12,7 @@ final List<User> users = [
 
 final User appUser = User(userImageUrl: "https://picsum.photos/id/169/250");
 
-final List<Story> storiess = [
+final List<Story> exampleStories = [
   Story(
     url:
         'https://images.unsplash.com/photo-1534103362078-d07e750bd0c4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80',

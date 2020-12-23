@@ -15,7 +15,7 @@ class ProfileHighlightStories extends StatelessWidget {
         child: ListView.builder(
           physics: BouncingScrollPhysics(),
           controller: _storySC,
-          itemCount: storiess.length,
+          itemCount: exampleStories.length,
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) {
             return buildStoryColumn(index);

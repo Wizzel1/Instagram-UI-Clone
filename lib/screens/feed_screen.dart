@@ -110,7 +110,7 @@ class FeedScreen extends StatelessWidget {
       child: ListView.builder(
         physics: BouncingScrollPhysics(),
         controller: _storySC,
-        itemCount: storiess.length,
+        itemCount: exampleStories.length,
         scrollDirection: Axis.horizontal,
         itemBuilder: (context, index) {
           if (index == 0) {
@@ -144,16 +144,9 @@ class StoryWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) {
-              return StoryScreen(
-                stories: storiess,
-              );
-            },
-          ),
-        );
+        //push storyscreen with static function
+
+        StoryScreen.showStoryScreen(context);
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

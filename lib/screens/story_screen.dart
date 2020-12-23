@@ -1,3 +1,4 @@
+import 'package:instagram_getx_clone/models/example_data.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_getx_clone/models/models.dart';
@@ -6,6 +7,17 @@ class StoryScreen extends StatefulWidget {
   final List<Story> stories;
 
   const StoryScreen({Key key, this.stories}) : super(key: key);
+
+  static void showStoryScreen(BuildContext context) async {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => StoryScreen(
+            stories: exampleStories,
+          ),
+        ),
+      );
+  }
 
   @override
   _StoryScreenState createState() => _StoryScreenState();
