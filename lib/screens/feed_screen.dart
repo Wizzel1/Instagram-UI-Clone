@@ -144,9 +144,13 @@ class StoryWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        //push storyscreen with static function
-
-        StoryScreen.showStoryScreen(context);
+        Navigator.of(context, rootNavigator: true).push(
+          PageRouteBuilder(
+            pageBuilder: (context, _, __) => StoryScreen(
+              stories: exampleStories,
+            ),
+          ),
+        );
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
