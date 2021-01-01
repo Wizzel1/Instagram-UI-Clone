@@ -227,6 +227,7 @@ class CropPreview extends StatelessWidget {
       @required this.onZoomPreviewPressed,
       @required this.cropController})
       : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -310,13 +311,11 @@ typedef OnIndexChanged = void Function(int a, int b);
 class AddContentBottomNavBar extends StatefulWidget {
   final PageController pageController;
   final PageController camPageController;
-  final OnIndexChanged onIndexChanged;
 
   AddContentBottomNavBar(
       {Key key,
       @required this.pageController,
-      @required this.camPageController,
-      @required this.onIndexChanged})
+      @required this.camPageController})
       : super(key: key);
 
   @override
@@ -379,7 +378,6 @@ class _AddContentBottomNavBarState extends State<AddContentBottomNavBar> {
           _childPageIndex = index;
           index < 2 ? _parentPageIndex = index : _parentPageIndex = index - 1;
         });
-        widget.onIndexChanged(_childPageIndex, _parentPageIndex);
       },
     );
   }
