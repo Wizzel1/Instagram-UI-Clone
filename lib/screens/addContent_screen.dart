@@ -23,8 +23,6 @@ class _AddContentScreenState extends State<AddContentScreen> {
   PageController _pageController;
   PageController camScreenPageController;
   CropController _cropController;
-  int _parentPageIndex = 0;
-  int _childPageIndex = 0;
   List<MediaCollection> _collections = [];
   bool _multiSelectable = false;
   bool _zoomPreview = false;
@@ -88,12 +86,6 @@ class _AddContentScreenState extends State<AddContentScreen> {
       body: PageView(
         pageSnapping: _snapPageView,
         physics: NeverScrollableScrollPhysics(),
-        onPageChanged: (index) {
-          setState(() {
-            _parentPageIndex = index;
-            _childPageIndex = index;
-          });
-        },
         controller: _pageController,
         children: [
           Column(
@@ -146,23 +138,12 @@ class _AddContentScreenState extends State<AddContentScreen> {
           ),
           CameraScreen(
             camScreenPageController: camScreenPageController,
-            onChangedCamScreenPage: (index) {
-              setState(() {
-                _childPageIndex = index + 1;
-              });
-            },
           )
         ],
       ),
       bottomNavigationBar: AddContentBottomNavBar(
         pageController: _pageController,
         camPageController: camScreenPageController,
-        onIndexChanged: (a, b) {
-          setState(() {
-            _childPageIndex = a;
-            _parentPageIndex = b;
-          });
-        },
       ),
     );
   }
@@ -346,6 +327,21 @@ class _AddContentBottomNavBarState extends State<AddContentBottomNavBar> {
   int _childPageIndex = 0;
   int _parentPageIndex = 0;
 
+  final List<BottomNavigationBarItem> _navBarItems = [
+    const BottomNavigationBarItem(
+      label: "Gallery",
+      icon: SizedBox.shrink(),
+    ),
+    const BottomNavigationBarItem(
+      label: "Photo",
+      icon: SizedBox.shrink(),
+    ),
+    const BottomNavigationBarItem(
+      label: "Video",
+      icon: SizedBox.shrink(),
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
@@ -353,20 +349,7 @@ class _AddContentBottomNavBarState extends State<AddContentBottomNavBar> {
       showUnselectedLabels: true,
       selectedItemColor: Colors.black,
       currentIndex: _childPageIndex,
-      items: [
-        const BottomNavigationBarItem(
-          label: "Gallery",
-          icon: SizedBox.shrink(),
-        ),
-        const BottomNavigationBarItem(
-          label: "Photo",
-          icon: SizedBox.shrink(),
-        ),
-        const BottomNavigationBarItem(
-          label: "Video",
-          icon: SizedBox.shrink(),
-        ),
-      ],
+      items: _navBarItems,
       onTap: (index) {
         if (index == _childPageIndex) return;
         if (_parentPageIndex == 0) {
