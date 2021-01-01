@@ -1,7 +1,7 @@
 class Comment {
-  String authorName;
-  String authorImageUrl;
-  String text;
+  final String authorName;
+  final String authorImageUrl;
+  final String text;
 
   Comment({
     this.authorName,
