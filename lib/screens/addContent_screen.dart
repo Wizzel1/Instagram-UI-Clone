@@ -20,18 +20,19 @@ class AddContentScreen extends StatefulWidget {
 }
 
 class _AddContentScreenState extends State<AddContentScreen> {
-  PageController _pageController;
-  PageController camScreenPageController;
+  PageController addContentScreenPC;
+  PageController camScreenPC;
   CropController _cropController;
-  List<MediaCollection> _collections = [];
-  bool _multiSelectable = false;
+  List<MediaCollection> _mediaCollections = [];
+  bool _multiSelectEnabled = false;
   bool _zoomPreview = false;
   bool _snapPageView = false;
+  int navBarIndex = 0;
 
   @override
   void initState() {
-    _pageController = PageController();
-    camScreenPageController = PageController();
+    addContentScreenPC = PageController();
+    camScreenPC = PageController();
     _cropController =
         CropController(scale: 2, aspectRatio: 20 / 16); //1000 / 667.0);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -43,15 +44,15 @@ class _AddContentScreenState extends State<AddContentScreen> {
   @override
   void dispose() {
     _cropController.dispose();
-    camScreenPageController.dispose();
-    _pageController.dispose();
+    camScreenPC.dispose();
+    addContentScreenPC.dispose();
     super.dispose();
   }
 
   Future<void> initAsync() async {
     final MediaPickerSelection selection = MediaPickerSelection.of(context);
     try {
-      _collections = await MediaGallery.listMediaCollections(
+      _mediaCollections = await MediaGallery.listMediaCollections(
         mediaTypes: selection.mediaTypes,
       );
       setState(() {});
@@ -62,22 +63,57 @@ class _AddContentScreenState extends State<AddContentScreen> {
 
   void customAnimatePageView(DragUpdateDetails details) {
     if (details.delta.dx < -3) {
-      _pageController.animateToPage(1,
+      addContentScreenPC.animateToPage(1,
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else {
-      _pageController.jumpTo(_pageController.offset - details.delta.dx);
+      addContentScreenPC.jumpTo(addContentScreenPC.offset - details.delta.dx);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final MediaPickerSelection selection = MediaPickerSelection.of(context);
-    final MediaCollection allCollection = _collections.firstWhere(
+    final MediaCollection allCollection = _mediaCollections.firstWhere(
       (collection) => collection.isAllCollection,
       orElse: () {
         return null;
       },
     );
+
+    Future<void> animatePageControllerToPage(
+        int pageIndex, int milliseconds) async {
+      await addContentScreenPC.animateToPage(pageIndex,
+          duration: Duration(milliseconds: milliseconds), curve: Curves.ease);
+    }
+
+    Future<void> animateCamPageControllerToPage(
+        int pageIndex, int milliseconds) async {
+      await camScreenPC.animateToPage(pageIndex,
+          duration: Duration(milliseconds: milliseconds), curve: Curves.ease);
+    }
+
+    void handleNavBarTapped(int index) {
+      print(index);
+      if (addContentScreenPC.page == 0) {
+        if (index == 1) {
+          animatePageControllerToPage(1, 300);
+        } else if (index == 2) {
+          //jump to photo page,then to video page
+          animatePageControllerToPage(1, 150)
+              .then((value) => animateCamPageControllerToPage(1, 150));
+        }
+      } else {
+        if (index == 0) {
+          animatePageControllerToPage(0, 300);
+        } else if (index == 1 && navBarIndex != 1) {
+          animatePageControllerToPage(1, 150)
+              .then((value) => animateCamPageControllerToPage(0, 150));
+        } else if (index == 2 && navBarIndex != 2) {
+          animatePageControllerToPage(1, 150)
+              .then((value) => animateCamPageControllerToPage(1, 150));
+        }
+      }
+    }
 
     return Scaffold(
       appBar: AddContentScreenAppBar(
@@ -86,7 +122,10 @@ class _AddContentScreenState extends State<AddContentScreen> {
       body: PageView(
         pageSnapping: _snapPageView,
         physics: NeverScrollableScrollPhysics(),
-        controller: _pageController,
+        onPageChanged: (value) => setState(() {
+          navBarIndex = value;
+        }),
+        controller: addContentScreenPC,
         children: [
           Column(
             children: [
@@ -97,8 +136,8 @@ class _AddContentScreenState extends State<AddContentScreen> {
                   onMultiSelectPressed: () {
                     setState(
                       () {
-                        _multiSelectable = !_multiSelectable;
-                        selection.toggleMultiSelection(_multiSelectable);
+                        _multiSelectEnabled = !_multiSelectEnabled;
+                        selection.toggleMultiSelection(_multiSelectEnabled);
                       },
                     );
                   },
@@ -130,20 +169,25 @@ class _AddContentScreenState extends State<AddContentScreen> {
                   child: allCollection == null
                       ? SizedBox()
                       : MediaGrid(
-                          allowMultiSelection: _multiSelectable,
+                          allowMultiSelection: _multiSelectEnabled,
                           collection: allCollection),
                 ),
               )
             ],
           ),
           CameraScreen(
-            camScreenPageController: camScreenPageController,
+            camScreenPageController: camScreenPC,
+            onChangedCamScreenPage: (index) => setState(() {
+              navBarIndex = index + 1;
+            }),
           )
         ],
       ),
       bottomNavigationBar: AddContentBottomNavBar(
-        pageController: _pageController,
-        camPageController: camScreenPageController,
+        navBarIndex: navBarIndex,
+        onNavBarTap: (index) {
+          handleNavBarTapped(index);
+        },
       ),
     );
   }
@@ -306,16 +350,12 @@ class CropPreview extends StatelessWidget {
   }
 }
 
-typedef OnIndexChanged = void Function(int a, int b);
-
 class AddContentBottomNavBar extends StatefulWidget {
-  final PageController pageController;
-  final PageController camPageController;
+  final int navBarIndex;
+  final Function onNavBarTap;
 
   AddContentBottomNavBar(
-      {Key key,
-      @required this.pageController,
-      @required this.camPageController})
+      {Key key, @required this.navBarIndex, @required this.onNavBarTap})
       : super(key: key);
 
   @override
@@ -323,9 +363,6 @@ class AddContentBottomNavBar extends StatefulWidget {
 }
 
 class _AddContentBottomNavBarState extends State<AddContentBottomNavBar> {
-  int _childPageIndex = 0;
-  int _parentPageIndex = 0;
-
   final List<BottomNavigationBarItem> _navBarItems = [
     const BottomNavigationBarItem(
       label: "Gallery",
@@ -347,37 +384,10 @@ class _AddContentBottomNavBarState extends State<AddContentBottomNavBar> {
       showSelectedLabels: true,
       showUnselectedLabels: true,
       selectedItemColor: Colors.black,
-      currentIndex: _childPageIndex,
+      currentIndex: widget.navBarIndex,
       items: _navBarItems,
       onTap: (index) {
-        if (index == _childPageIndex) return;
-        if (_parentPageIndex == 0) {
-          if (index == 1) {
-            widget.pageController.animateToPage(1,
-                duration: Duration(milliseconds: 300), curve: Curves.ease);
-          } else if (index == 2) {
-            widget.pageController
-                .animateToPage(1,
-                    duration: Duration(milliseconds: 150), curve: Curves.ease)
-                .then((value) => widget.camPageController.animateToPage(1,
-                    duration: Duration(milliseconds: 150), curve: Curves.ease));
-          }
-        } else {
-          if (index == 0) {
-            widget.pageController.animateToPage(0,
-                duration: Duration(milliseconds: 300), curve: Curves.ease);
-          } else if (index == 1 && _childPageIndex != 1) {
-            widget.camPageController.animateToPage(0,
-                duration: Duration(milliseconds: 300), curve: Curves.ease);
-          } else if (index == 2 && _childPageIndex != 2) {
-            widget.camPageController.animateToPage(1,
-                duration: Duration(milliseconds: 300), curve: Curves.ease);
-          }
-        }
-        setState(() {
-          _childPageIndex = index;
-          index < 2 ? _parentPageIndex = index : _parentPageIndex = index - 1;
-        });
+        widget.onNavBarTap(index);
       },
     );
   }
