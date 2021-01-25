@@ -16,8 +16,10 @@ class User {
   List<Post> _createPosts() {
     List<Post> _postList = [];
     for (var i = 0; i < Random().nextInt(6); i++) {
-      _postList.add(
-          Post(authorID: id, imageUrl: 'https://picsum.photos/id/100$i/650'));
+      _postList.add(Post(
+          authorID: id,
+          author: this,
+          imageUrl: 'https://picsum.photos/id/100$i/650'));
     }
     _postList.sort((a, b) => a.timeAgo.compareTo(b.timeAgo));
     return _postList;

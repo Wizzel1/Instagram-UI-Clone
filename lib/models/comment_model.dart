@@ -10,7 +10,7 @@ class Comment {
   });
 }
 
-final List<Comment> comments = [
+final List<Comment> exampleComments = [
   Comment(
     authorName: 'Angel',
     authorImageUrl: 'https://picsum.photos/650',

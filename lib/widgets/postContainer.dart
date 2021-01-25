@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:instagram_getx_clone/models/example_data.dart';
 import 'package:instagram_getx_clone/models/models.dart';
+import 'package:instagram_getx_clone/screens/postDetail_screen.dart';
 import 'package:instagram_getx_clone/screens/screens.dart';
 
 class PostContainer extends StatelessWidget {
@@ -18,6 +19,7 @@ class PostContainer extends StatelessWidget {
     return Container(
       color: Colors.white,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           buildAuthorInfoContainer(context, author),
           Image(
@@ -26,6 +28,8 @@ class PostContainer extends StatelessWidget {
           buildIconButtonRow(),
           buildLikeInfoContainer(),
           buildCaptionContainer(author),
+          buildCommentsContainer(context),
+          const SizedBox(height: 5),
           buildTimeAgoContainer(),
           const SizedBox(height: 20),
         ],
@@ -154,6 +158,25 @@ class PostContainer extends StatelessWidget {
         ),
         IconButton(icon: Icon(FontAwesome.bookmark_o), onPressed: () {})
       ],
+    );
+  }
+
+  Widget buildCommentsContainer(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 5.0),
+      width: double.infinity,
+      child: GestureDetector(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PostDetailScreen(post: post),
+          ),
+        ),
+        child: Text(
+          "Show all ${post.comments.length} comments",
+          style: TextStyle(color: Colors.grey),
+        ),
+      ),
     );
   }
 }

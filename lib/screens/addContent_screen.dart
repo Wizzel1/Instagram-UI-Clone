@@ -20,7 +20,7 @@ class AddContentScreen extends StatefulWidget {
 }
 
 class _AddContentScreenState extends State<AddContentScreen> {
-  PageController addContentScreenPC;
+  PageController _addContentScreenPC;
   PageController camScreenPC;
   CropController _cropController;
   List<MediaCollection> _mediaCollections = [];
@@ -31,7 +31,7 @@ class _AddContentScreenState extends State<AddContentScreen> {
 
   @override
   void initState() {
-    addContentScreenPC = PageController();
+    _addContentScreenPC = PageController();
     camScreenPC = PageController();
     _cropController =
         CropController(scale: 2, aspectRatio: 20 / 16); //1000 / 667.0);
@@ -45,7 +45,7 @@ class _AddContentScreenState extends State<AddContentScreen> {
   void dispose() {
     _cropController.dispose();
     camScreenPC.dispose();
-    addContentScreenPC.dispose();
+    _addContentScreenPC.dispose();
     super.dispose();
   }
 
@@ -63,10 +63,10 @@ class _AddContentScreenState extends State<AddContentScreen> {
 
   void customAnimatePageView(DragUpdateDetails details) {
     if (details.delta.dx < -3) {
-      addContentScreenPC.animateToPage(1,
+      _addContentScreenPC.animateToPage(1,
           duration: Duration(milliseconds: 300), curve: Curves.ease);
     } else {
-      addContentScreenPC.jumpTo(addContentScreenPC.offset - details.delta.dx);
+      _addContentScreenPC.jumpTo(_addContentScreenPC.offset - details.delta.dx);
     }
   }
 
@@ -82,7 +82,7 @@ class _AddContentScreenState extends State<AddContentScreen> {
 
     Future<void> animatePageControllerToPage(
         int pageIndex, int milliseconds) async {
-      await addContentScreenPC.animateToPage(pageIndex,
+      await _addContentScreenPC.animateToPage(pageIndex,
           duration: Duration(milliseconds: milliseconds), curve: Curves.ease);
     }
 
@@ -94,7 +94,7 @@ class _AddContentScreenState extends State<AddContentScreen> {
 
     void handleNavBarTapped(int index) {
       print(index);
-      if (addContentScreenPC.page == 0) {
+      if (_addContentScreenPC.page == 0) {
         if (index == 1) {
           animatePageControllerToPage(1, 300);
         } else if (index == 2) {
@@ -125,7 +125,7 @@ class _AddContentScreenState extends State<AddContentScreen> {
         onPageChanged: (value) => setState(() {
           navBarIndex = value;
         }),
-        controller: addContentScreenPC,
+        controller: _addContentScreenPC,
         children: [
           Column(
             children: [
